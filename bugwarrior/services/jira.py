@@ -3,6 +3,7 @@ from builtins import str
 
 
 import six
+from datetime import date
 from jinja2 import Template
 from jira.client import JIRA as BaseJIRA
 from requests.cookies import RequestsCookieJar
@@ -160,9 +161,12 @@ class JiraIssue(Issue):
         # Otherwise, if the issue is in a sprint, use the end date of that sprint.
         sprints = self.__get_sprints()
         for sprint in filter(lambda e: e.get('state', '').lower() != 'closed', sprints):
-            endDate = sprint['endDate']
-            if endDate != '<null>':
-                return self.parse_date(endDate)
+            try:
+                endDate = sprint['endDate']
+                if endDate != '<null>':
+                    return self.parse_date(endDate)
+            except:
+                return date.today()
 
     def _get_tags_from_sprints(self):
         tags = []
